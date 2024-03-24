@@ -49,6 +49,8 @@ enum Planets {
     JAMMING_ARRAY
 };
 
+
+
 // -----
 // types
 // -----
@@ -79,9 +81,9 @@ typedef struct {
 
 #define umoddi3 ((u32 (*)(u32, s32))0x1220f0)
 
-#define getTextSprite ((u64 (*)(u64))0x002e67a0)
+// #define getTextSprite ((u64 (*)(u64))0x002e67a0)
 //                               posX posY //clr//text, length //style    //ptr
-#define guiDrawTextEx ((void (*)(int, int, u64, char*, int, uint64_t, int*))0x002e9230)
+// #define guiDrawTextEx ((void (*)(int, int, u64, char*, int, uint64_t, int*))0x002e9230)
 #define createPopup ((void(*)(char*, uint64_t))0x30dd70)
 
 // player
