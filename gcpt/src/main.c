@@ -4,82 +4,61 @@
 
 #include "include/rac2.h"
 #include "include/timer.h"
-#include "include/memory.h"
 
-typedef void (*GuiDrawTextExFunc)(int, int, u64, char*, int, uint64_t, int*);
 
-typedef u64 (*GetTextSpritesFunc)(u64);
+#define defaultOffset (0xEF000)
+
+// efficient memory usage fr
+#define currentTime (*((u64*)0xEFDF4))
+#define timerStarted (*((int*)defaultOffset + 0x20))
+#define sugmaBalls (*((int*)defaultOffset + 0x30))
+#define formatted_time_string ((char*)defaultOffset + 0x40)
+#define textDrawingPtr ((char*)defaultOffset + 0x50)
+
+
+typedef void (*GuiDrawTextExFunc)(int, int, u64, char*, int);
+
+
 
 const uint64_t guiDrawTextExAddresses[] = {
-    0x2e9230,   // ARANOS_TUTORIAL
-    0x2DE978,   // OOZLA
-    0x2EC6C0,   // MAKTAR
-    0x2E9D30,   // ENDAKO
-    0x309A08,   // BARLOW
-    0x301C00,   // FELTZIN
-    0x328890,   // NOTAK
-    0x2DF208,   // SIBERIUS
-    0x2F5278,   // TABORA
-    0x2E5308,   // DOBBO
-    0x304100,   // HRUGIS
-    0x2FB010,   // JOBA
-    0x2EC8C0,   // TODANO
-    0x2F3C98,   // BOLDAN
-    0x2F0B30,   // ARANOS_REVISIT
-    0x302200,   // GORN
-    0x2E2488,   // SNIVELAK
-    0x2EA268,   // SMOLG
-    0x303A78,   // DAMOSEL
-    0x2E6EF0,   // GRELBIN
-    0x2FD1D0,   // YEEDIL
-    0x2F02E0,   // MUSEUM
-    0x2EF400,   // DOBBO_ORBIT
-    0x2F3AE0,   // DAMOSEL_ORBIT
-    0x2E81C8,   // SHIP_SHACK
-    0x2FC580,   // WUPASH
-    0x2E9848    // JAMMING_ARRAY
+    0x2e94c0,   // ARANOS_TUTORIAL
+    0x2DEC08,   // OOZLA
+    0x2EC950,   // MAKTAR
+    0x2E9FC0,   // ENDAKO
+    0x309C98,   // BARLOW
+    0x301E90,   // FELTZIN
+    0x328B20,   // NOTAK
+    0x2DF498,   // SIBERIUS
+    0x2F5508,   // TABORA
+    0x2E5598,   // DOBBO
+    0x304390,   // HRUGIS
+    0x2FB2A0,   // JOBA
+    0x2ECB50,   // TODANO
+    0x2F3F28,   // BOLDAN
+    0x2F0DC0,   // ARANOS_REVISIT
+    0x302490,   // GORN
+    0x2E2718,   // SNIVELAK
+    0x2EA4F8,   // SMOLG
+    0x303D08,   // DAMOSEL
+    0x2E7180,   // GRELBIN
+    0x2FD460,   // YEEDIL
+    0x2F0570,   // MUSEUM
+    0x2EF690,   // DOBBO_ORBIT
+    0x2F3D70,   // DAMOSEL_ORBIT
+    0x2E8458,   // SHIP_SHACK
+    0x2FC810,   // WUPASH
+    0x2E9AD8    // JAMMING_ARRAY
 };
 
-const uint64_t guiGetTextSpriteAddresses[] = {
-    0x2e67a0,   // ARANOS_TUTORIAL
-    0x2DBEE8,   // OOZLA
-    0x2E9C30,   // MAKTAR
-    0x2E72A0,   // ENDAKO
-    0x306F78,   // BARLOW
-    0x2FEF40,   // FELTZIN
-    0x325E00,   // NOTAK
-    0x2DC778,   // SIBERIUS
-    0x2F2568,   // TABORA
-    0x2E2828,   // DOBBO
-    0x301440,   // HRUGIS
-    0x2F8580,   // JOBA
-    0x2E9E30,   // TODANO
-    0x2F1208,   // BOLDAN
-    0x2EE0A0,   // ARANOS_REVISIT
-    0x2FF540,   // GORN
-    0x2DF9F8,   // SNIVELAK
-    0x2E77D8,   // SMOLG
-    0x300FC8,   // DAMOSEL
-    0x2E41C0,   // GRELBIN
-    0x2FA720,   // YEEDIL
-    0x2ED5D0,   // MUSEUM
-    0x2EC970,   // DOBBO_ORBIT
-    0x2F1050,   // DAMOSEL_ORBIT
-    0x2E5738,   // SHIP_SHACK
-    0x2F98C0,   // WUPASH
-    0x2E6DB8    // JAMMING_ARRAY
-};
+
 
 
 void drawText(int posX, int posY, char* message) {
-        u64 textSpriteSettings;
-
         GuiDrawTextExFunc guiDrawTextEx = (GuiDrawTextExFunc)guiDrawTextExAddresses[current_planet];
-        GetTextSpritesFunc getTextSprite = (GetTextSpritesFunc)guiGetTextSpriteAddresses[current_planet];
-
-        textSpriteSettings = getTextSprite(1);
-        guiDrawTextEx(posX, posY, 0x80f0f0f0, message, -1, textSpriteSettings, 0x28c590);
+        guiDrawTextEx(posX, posY, 0x80f0f0f0, message, -1);
 }
+
+u64 customMillis;
 
 int main(void)
 { // bløah
@@ -90,8 +69,7 @@ int main(void)
         timerStarted = 1;
     }
 
-    if(timerStarted == 1) {
-        formatTime(BusClkToMs(Timer()));
+        sprintf(formatted_time_string, "Current timer ticks: %" PRIu64, customMilliseconds);
         drawText(0x8, 0x185, formatted_time_string);
         
     }

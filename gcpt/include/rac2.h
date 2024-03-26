@@ -119,4 +119,35 @@ typedef struct {
 #define game_state (*((unsigned int*)0x1A8F00))
 
 
-
+/*
+typedef u64 (*GetTextSpritesFunc)(u64);
+const uint64_t guiGetTextSpriteAddresses[] = {
+    0x2e67a0,   // ARANOS_TUTORIAL
+    0x2DBEE8,   // OOZLA
+    0x2E9C30,   // MAKTAR
+    0x2E72A0,   // ENDAKO
+    0x306F78,   // BARLOW
+    0x2FEF40,   // FELTZIN
+    0x325E00,   // NOTAK
+    0x2DC778,   // SIBERIUS
+    0x2F2568,   // TABORA
+    0x2E2828,   // DOBBO
+    0x301440,   // HRUGIS
+    0x2F8580,   // JOBA
+    0x2E9E30,   // TODANO
+    0x2F1208,   // BOLDAN
+    0x2EE0A0,   // ARANOS_REVISIT
+    0x2FF540,   // GORN
+    0x2DF9F8,   // SNIVELAK
+    0x2E77D8,   // SMOLG
+    0x300FC8,   // DAMOSEL
+    0x2E41C0,   // GRELBIN
+    0x2FA720,   // YEEDIL
+    0x2ED5D0,   // MUSEUM
+    0x2EC970,   // DOBBO_ORBIT
+    0x2F1050,   // DAMOSEL_ORBIT
+    0x2E5738,   // SHIP_SHACK
+    0x2F98C0,   // WUPASH
+    0x2E6DB8    // JAMMING_ARRAY
+};
+*/

@@ -6,7 +6,7 @@
 #include <kernel.h>
 #include "include/timer.h"
 #include "include/rac2.h"
-#include "include/memory.h"
+#include <inttypes.h>
 
 static int TimerInterruptID = -1;
 static u64 TimerInterruptCount = 0;
@@ -54,7 +54,7 @@ u64 BusClkToMs(u64 cycles) {
 }
 
 void formatTime(unsigned long milliseconds) {
-    unsigned long seconds, minutes, hours;
+    /* unsigned long seconds, minutes, hours;
 
     seconds = udivdi3(milliseconds, 1000);
     milliseconds = umoddi3(milliseconds, 1000);
@@ -65,5 +65,6 @@ void formatTime(unsigned long milliseconds) {
     hours = udivdi3(minutes, 60);
     minutes = umoddi3(minutes, 60);
 
-    sprintf(formatted_time_string, "%u:%02u:%02u.%03u", hours, minutes, seconds, milliseconds);
+    sprintf(formatted_time_string, "%u:%02u:%02u.%03u", hours, minutes, seconds, milliseconds); */
+	// sprintf(formatted_time_string, "yes im %" PRIu64 "a", milliseconds);
 }
