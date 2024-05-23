@@ -61,7 +61,7 @@ void drawText(int posX, int posY, char* message) {
 u64 customMillis;
 
 int main(void)
-{ // bløah
+{ // bløah kill me.
 
     if(timerStarted == 0)
     {
