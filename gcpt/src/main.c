@@ -23,6 +23,8 @@
 #define load_norm (*((int*)defaultOffset + 9))
 // Number of long loads counted, each one is 217 frames
 #define long_loads (*((int*)defaultOffset + 10))
+#define misc_string1 ((char*)defaultOffset + 0x30)
+#define misc_string2 ((char*)defaultOffset + 0x40)
 // Make sure this one is last
 #define formatted_time_string ((char*)defaultOffset + 0x50)
 
@@ -65,6 +67,8 @@ void resetTimer() {
     // 98 is like some kinda walking animation idk
     if (current_planet == 0 && player_state == 98 && old_player_state != 98) {
         final_time = 0;
+        load_norm = 0;
+        long_loads = 0;
         timer_offset = global_timer;
     }
 }
@@ -131,10 +135,6 @@ void formatTime(int frames) {
 
 int main(void)
 {   
-    // Don't run if we haven't loaded a savefile yet. 
-    // Probably not needed, but it's safe. 0xFFFC is the default value for loaded_save_slot.
-    if (loaded_save_slot == -3) return 0;
-
     // Process button combos, currently just hides/shows timer
     if (old_down_buttons != down_buttons && down_buttons == 15) {
         drawing_disable = !drawing_disable;
@@ -156,11 +156,10 @@ int main(void)
         formatTime(final_time);
         drawText(0x8, 0x150, formatted_time_string); 
 
-        char buf[64];
-        sprintf(buf, "%d Long Loads", long_loads);
-        drawText(0x8, 0x100, buf); 
-        sprintf(buf, "%d Load Normalised Frames");
-        drawText(0x8, 0x125, formatted_time_string); 
+        // sprintf(misc_string, "%d Long Loads", long_loads);
+        // drawText(0x8, 0x120, misc_string); 
+        sprintf(misc_string, "%d Load Normalised Frames", load_norm);
+        drawText(0x8, 0x135, misc_string); 
     } else if (drawing_disable == 0) {
         formatTime(curr_adjusted_time);
         // Draw higher on ship missions to avoid blocking timer
