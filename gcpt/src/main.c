@@ -11,13 +11,18 @@
 // Variables for keeping track of old values for load remover/autosplitter etc.
 #define old_planet_timer_value (*((int*)defaultOffset + 1))
 #define old_player_state (*((int*)defaultOffset + 2))
-#define timer_offset (*((int*)defaultOffset + 3))
-#define old_load_screen (*((int*)defaultOffset + 4))
-#define load_screen_count (*((int*)defaultOffset + 5))
-#define final_time (*((int*)defaultOffset + 6))
+#define old_load_screen (*((int*)defaultOffset + 3))
+#define load_screen_count (*((int*)defaultOffset + 4))
+#define final_time (*((int*)defaultOffset + 5))
+#define old_down_buttons (*((int*)defaultOffset + 6))
 // Manual overrride for drawing timer, non-zero means hide
 #define drawing_disable (*((int*)defaultOffset + 7))
-#define old_down_buttons (*((int*)defaultOffset + 8))
+// Value of frame timer stored from the frame when resetting
+#define timer_offset (*((int*)defaultOffset + 8))
+// Frames saved via load normalisation
+#define load_norm (*((int*)defaultOffset + 9))
+// Number of long loads counted, each one is 217 frames
+#define long_loads (*((int*)defaultOffset + 10))
 // Make sure this one is last
 #define formatted_time_string ((char*)defaultOffset + 0x50)
 
@@ -76,20 +81,20 @@ void processLongLoads() {
         // Load normalisation (ala ng+)
         // Add any extra frames to our timer offset as long the loading screen isn't LTR (fastest screen at 217 frames)
         if (load_screen_type == LOAD_RTL) {
-            timer_offset += 1;
+            load_norm += 1;
         }
         if (load_screen_type == LOAD_CURVED) {
-            timer_offset += 9;
+            load_norm += 9;
         }
         // if (old_load_screen == LOAD_LTR) // no offset
         if (load_screen_type == LOAD_TTB) { 
-            timer_offset += 21;
+            load_norm += 21;
         }
 
         // Additionally, remove fully any loading screens after the second one.
         // Don't include final load screen in this timing
         if (load_screen_count > 2 && load_screen_type != LOAD_FINAL) {
-            timer_offset += 217;
+            long_loads += 1;
         }
 
     };
@@ -128,26 +133,36 @@ int main(void)
 {   
     // Don't run if we haven't loaded a savefile yet. 
     // Probably not needed, but it's safe. 0xFFFC is the default value for loaded_save_slot.
-    if (loaded_save_slot == 0xFFFC) return;
+    if (loaded_save_slot == -3) return 0;
 
     // Process button combos, currently just hides/shows timer
     if (old_down_buttons != down_buttons && down_buttons == 15) {
         drawing_disable = !drawing_disable;
     }
 
+    // Each normalised long load is 217 frames
+    int total_offset = timer_offset + load_norm + (217 * long_loads);
+    int curr_adjusted_time = global_timer - total_offset;
+
     // Get our final time when Protopet is killed.
     // Cutscene ID 6 is the protopet death cutscene
-    // 9 frames need to be subtracted for the time to be correct with fadeout.
     if (current_planet == 20 && final_time == 0 && yeedil_scene == 6) {
-        final_time = global_timer - timer_offset - 9;
+        // 9 frames need to be subtracted for the time to be correct with fadeout.
+        final_time = curr_adjusted_time - 9;
     }
 
     // Handle freezing on protopet by drawing final_time if it exists 
     if (final_time != 0) {
         formatTime(final_time);
-        drawText(0x8, 0x150, formatted_time_string);
+        drawText(0x8, 0x150, formatted_time_string); 
+
+        char buf[64];
+        sprintf(buf, "%d Long Loads", long_loads);
+        drawText(0x8, 0x100, buf); 
+        sprintf(buf, "%d Load Normalised Frames");
+        drawText(0x8, 0x125, formatted_time_string); 
     } else if (drawing_disable == 0) {
-        formatTime(global_timer - timer_offset);
+        formatTime(curr_adjusted_time);
         // Draw higher on ship missions to avoid blocking timer
         if (current_planet == WUPASH || current_planet == FELTZIN 
         || current_planet == HRUGIS || current_planet == GORN) {
