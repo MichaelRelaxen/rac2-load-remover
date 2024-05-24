@@ -1,7 +1,13 @@
-# gcpt
+# Black Label Timer Mod
+[This mod](<https://github.com/MichaelRelaxen/gcpt>) times RaC2 black label runs in a hardware-independent way. It removes black (loading) screens, and automatically does long load removal and normalisation. To use it, load the mod (details below) and the mod should automatically reset your timer when you load a fresh save file on aranos 1. After killing the protopet on yeedil, the timer should freeze; time warp to before killing the protopet to see the final time of your run with extra loading times removed. Additionally, you can use the combo L1+L2+R1+R2 to toggle the display of the timer. It's on by default but you can turn it off if it's distracting. 
 
-Work in progress practice tool for Ratchet & Clank 2: Going Commando on da PlayStation Double.
+## Installation
+The mod comes as a .pnach file which modifies the game's code. To run it on emulator (PCSX2) you can drag and drop the .pnach file into the cheats directory, and enable cheats. To run the the game on hardware, use ps2rdmod to load the game with the .pnach file applied. The .pnach file, as well as a version of ps2rdmod with the required files installed, can be found below.  
 
+## Known Issues
+Some graphical bugs with the timer are present during pauses cutscenes. The timer display also isn't 100% consistent and disappears when holding strafe. These are both graphical-only bugs which will be fixed later. We're looking for people to test this!!
+
+## Build Instructions
 To build, setup docker
 ```
 docker run -it --rm -v "$PWD\:/src" ps2dev/ps2dev:v1.2.0
