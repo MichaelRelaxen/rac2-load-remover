@@ -5,7 +5,7 @@ EE_INC_DIR = include/
 
 EE_ELF = $(EE_BIN_DIR)test.elf
 EE_BIN = $(EE_BIN_DIR)38996035
-EE_OBJS = main.o timer.o
+EE_OBJS = main.o
 #EE_LIBS = -luyantsc
 #EE_LIBS = -luyapal
 
