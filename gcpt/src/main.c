@@ -12,20 +12,23 @@
 #define old_planet_timer_value (*((int*)defaultOffset + 1))
 #define old_player_state (*((int*)defaultOffset + 2))
 #define old_load_screen (*((int*)defaultOffset + 3))
-#define load_screen_count (*((int*)defaultOffset + 4))
-#define final_time (*((int*)defaultOffset + 5))
-#define old_down_buttons (*((int*)defaultOffset + 6))
+#define old_global_timer (*((int*)defaultOffset + 4))
+#define load_screen_count (*((int*)defaultOffset + 5))
+#define final_time (*((int*)defaultOffset + 6))
+#define old_down_buttons (*((int*)defaultOffset + 7))
 // Manual overrride for drawing timer, non-zero means hide
-#define drawing_disable (*((int*)defaultOffset + 7))
+#define drawing_disable (*((int*)defaultOffset + 8))
 // Value of frame timer stored from the frame when resetting
-#define timer_offset (*((int*)defaultOffset + 8))
+#define timer_offset (*((int*)defaultOffset + 9))
 // Frames saved via load normalisation
-#define load_norm (*((int*)defaultOffset + 9))
+#define load_norm (*((int*)defaultOffset + 10))
 // Number of long loads counted, each one is 217 frames
-#define long_loads (*((int*)defaultOffset + 10))
-#define misc_string1 ((char*)defaultOffset + 0x30)
-#define misc_string2 ((char*)defaultOffset + 0x40)
-// Make sure this one is last
+#define long_loads (*((int*)defaultOffset + 11))
+// Number of "black screen"(?) frames when our code doesn't run
+#define black_frames (*((int*)defaultOffset + 12))
+
+// Make sure these two are last
+#define misc_string ((char*)defaultOffset + 0x30)
 #define formatted_time_string ((char*)defaultOffset + 0x50)
 
 // Every single planet has it's own guiDrawTextEx function, so we need to swap them out every time you load into a new level.
@@ -104,6 +107,14 @@ void processLongLoads() {
     };
 }
 
+// Count frozen screens where our code isn't running 
+void processFrozenScreens() {
+    if (global_timer - old_global_timer > 1) {
+        // One frame of difference usually, more means it froze for a bit
+        black_frames += global_timer - old_global_timer - 1;
+    }
+}
+
 void drawText(int posX, int posY, char* message) {
     // Additionally, this planet timer only counts up during gameplay.
     // Not displaying when it's frozen prevents drawing during loading screens and pauses.
@@ -150,7 +161,7 @@ int main(void)
         // 9 frames need to be subtracted for the time to be correct with fadeout.
         final_time = curr_adjusted_time - 9;
     }
-
+    
     // Handle freezing on protopet by drawing final_time if it exists 
     if (final_time != 0) {
         formatTime(final_time);
@@ -162,16 +173,20 @@ int main(void)
         drawText(0x8, 0x135, misc_string); 
     } else if (drawing_disable == 0) {
         formatTime(curr_adjusted_time);
+
+        int height = 0x185;
         // Draw higher on ship missions to avoid blocking timer
         if (current_planet == WUPASH || current_planet == FELTZIN 
         || current_planet == HRUGIS || current_planet == GORN) {
-            drawText(0x8, 0x150, formatted_time_string);
-        } else {
-            drawText(0x8, 0x185, formatted_time_string);
+            height = 0x150;
         }
+        sprintf(misc_string, "%d bs", black_frames);
+        drawText(0x8, height, formatted_time_string);
+        drawText(0x8, height - 0x15, misc_string);
     }
     
     resetTimer();
+    processFrozenScreens();
     processLongLoads();
 
     // Reset loading screen count if we just landed on a planet
@@ -186,6 +201,7 @@ int main(void)
 
     // Get previous state of variables for comparison.
     old_planet_timer_value = strafe_timer;
+    old_global_timer = global_timer;
     old_player_state = player_state;
     old_load_screen = load_screen_type;
     old_down_buttons = down_buttons;
