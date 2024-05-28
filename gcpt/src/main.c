@@ -69,10 +69,12 @@ void resetTimer() {
     // Reset timer on Aranos 1 spawn!
     // 98 is like some kinda walking animation idk
     if (current_planet == 0 && old_player_state == 98) {
+        // 33 frames after player state is set to 98. this sucks actually but idc LOL
+        timer_offset = global_timer - 33;
         final_time = 0;
         load_norm = 0;
         long_loads = 0;
-        timer_offset = global_timer - 33; // 33 frames after player state is set to 98. this sucks actually but idc LOL
+        black_frames = 0;
     }
 }
 
@@ -111,7 +113,6 @@ void processLongLoads() {
 void processFrozenScreens() {
     if (global_timer - old_global_timer > 10) {
         // One frame of difference usually, more means it froze for a bit
-        load_norm += global_timer - old_global_timer;
         black_frames += global_timer - old_global_timer - 1;
         // sprintf(misc_string, "bs%d", black_frames);
     }
@@ -159,7 +160,7 @@ int main(void)
     }
 
     // Each normalised long load is 217 frames
-    int total_offset = timer_offset + load_norm + (217 * long_loads);
+    int total_offset = timer_offset + load_norm + (217 * long_loads) + black_frames;
     int curr_adjusted_time = global_timer - total_offset;
 
     // Get our final time when Protopet is killed.
@@ -173,9 +174,6 @@ int main(void)
     if (final_time != 0) {
         formatTime(final_time);
         drawText(0x8, 0x150, formatted_time_string); 
-
-        // sprintf(misc_string, "%d Long Loads", long_loads);
-        // drawText(0x8, 0x120, misc_string); 
         drawText(0x8, 0x135, misc_string); 
     } else if (drawing_disable == 0) {
         formatTime(curr_adjusted_time);
@@ -186,9 +184,7 @@ int main(void)
         || current_planet == HRUGIS || current_planet == GORN) {
             height = 0x150;
         }
-        //sprintf(misc_string, "black frames: %d", black_frames);
-        drawText(0x8, height, formatted_time_string);
-        // drawText(0x8, height - 0x15, misc_string);
+        drawText(0x8, height, formatted_time_string);;
     }
     
     resetTimer();
