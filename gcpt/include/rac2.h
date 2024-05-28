@@ -91,7 +91,8 @@
 #define protopet_health (*((float*)0xDB5E60))
 
 // Address for gamestate on Yeedil. 
-#define yeedil_game_state (*((unsigned int*)0x1A8F00))
+#define main_game_state (*((unsigned int*)0x1A8F00))
+#define oozla_game_state (*((unsigned int*)0x1A8F40))
 
 // Current cutscene ID that's playing. May only be used on Yeedil.
 #define yeedil_scene (*((char*)0x1A6414))

@@ -28,8 +28,8 @@
 #define black_frames (*((int*)defaultOffset + 12))
 
 // Make sure these two are last
-#define misc_string ((char*)defaultOffset + 0x30)
-#define formatted_time_string ((char*)defaultOffset + 0x50)
+#define misc_string ((char*)defaultOffset + 0x40)
+#define formatted_time_string ((char*)defaultOffset + 0x60)
 
 // Every single planet has it's own guiDrawTextEx function, so we need to swap them out every time you load into a new level.
 // It's important to not change the address for guiDrawText while the function is being called or else it'll crash.
@@ -68,11 +68,11 @@ const uint64_t guiDrawTextExAddresses[] = {
 void resetTimer() {
     // Reset timer on Aranos 1 spawn!
     // 98 is like some kinda walking animation idk
-    if (current_planet == 0 && player_state == 98 && old_player_state != 98) {
+    if (current_planet == 0 && old_player_state == 98) {
         final_time = 0;
         load_norm = 0;
         long_loads = 0;
-        timer_offset = global_timer;
+        timer_offset = global_timer - 33; // 33 frames after player state is set to 98. this sucks actually but idc LOL
     }
 }
 
@@ -109,17 +109,24 @@ void processLongLoads() {
 
 // Count frozen screens where our code isn't running 
 void processFrozenScreens() {
-    if (global_timer - old_global_timer > 1) {
+    if (global_timer - old_global_timer > 10) {
         // One frame of difference usually, more means it froze for a bit
+        load_norm += global_timer - old_global_timer;
         black_frames += global_timer - old_global_timer - 1;
+        // sprintf(misc_string, "bs%d", black_frames);
     }
+}
+
+int getGameState() {
+    if(current_planet == OOZLA) return oozla_game_state;
+    else return main_game_state;
 }
 
 void drawText(int posX, int posY, char* message) {
     // Additionally, this planet timer only counts up during gameplay.
     // Not displaying when it's frozen prevents drawing during loading screens and pauses.
     // Also check if planet_loading is 0, or else it'll crash on Aranos end, Jamming entry, Insomniac Museum teleporter etc.
-    if ((planet_loading == 0 && planet_loading_oozla == 0) && strafe_timer != old_planet_timer_value) {
+    if ((planet_loading == 0 && planet_loading_oozla == 0) && getGameState() != 3) {
         GuiDrawTextExFunc guiDrawTextEx = (GuiDrawTextExFunc)guiDrawTextExAddresses[current_planet];
         guiDrawTextEx(posX, posY, 0x80f0f0f0, message, -1);
     }
@@ -140,7 +147,7 @@ void formatTime(int frames) {
     hours = udivdi3(minutes, 60);
     minutes = umoddi3(minutes, 60);
 
-    sprintf(formatted_time_string, "%u:%02u:%02u.%03u", hours, minutes, seconds, milliseconds);
+    sprintf(formatted_time_string, "%u:%02u:%02u.%03u\xf!%d", hours, minutes, seconds, milliseconds, black_frames);
 }
 
 
@@ -169,7 +176,6 @@ int main(void)
 
         // sprintf(misc_string, "%d Long Loads", long_loads);
         // drawText(0x8, 0x120, misc_string); 
-        sprintf(misc_string, "%d Load Normalised Frames", load_norm);
         drawText(0x8, 0x135, misc_string); 
     } else if (drawing_disable == 0) {
         formatTime(curr_adjusted_time);
@@ -180,9 +186,9 @@ int main(void)
         || current_planet == HRUGIS || current_planet == GORN) {
             height = 0x150;
         }
-        sprintf(misc_string, "%d bs", black_frames);
+        //sprintf(misc_string, "black frames: %d", black_frames);
         drawText(0x8, height, formatted_time_string);
-        drawText(0x8, height - 0x15, misc_string);
+        // drawText(0x8, height - 0x15, misc_string);
     }
     
     resetTimer();
