@@ -5,18 +5,27 @@
 The mod comes as a .pnach file which modifies the game's code. To run it on emulator (PCSX2) you can drag and drop the .pnach file into the cheats directory, and enable cheats. To run the the game on hardware, use ps2rdmod to load the game with the .pnach file applied. The .pnach file, as well as a version of ps2rdmod with the required files installed, can be found below.  
 
 ## Known Issues
-Some graphical bugs with the timer are present during pauses cutscenes. The timer display also isn't 100% consistent and disappears when holding strafe. These are both graphical-only bugs which will be fixed later. We're looking for people to test this!!
+- Some graphical bugs with the timer are present during autosaves, pauses, cutscenes etc.
+- If you use progressive scan you'll need to play a cinematic from the menu to get the timer to display.
+We're looking for people to test this!! Please report any issues you find!
 
 ## Build Instructions
-To build, setup docker
+To build, install [docker](https://docker.com/)
 ```
+docker pull ps2dev/ps2dev
 docker run -it --rm -v "$PWD\:/src" ps2dev/ps2dev:v1.2.0
 cd src
 cd gcpt
 ./docker-init.sh
 ```
 
-Then use:
+Then build:
 ```
 make clean && make
 ```
+
+NOTE: The docker-init script is known to fail due to inconsistent line endings when your git is configured to convert line endings (windows). If this is the case you can either replace all line endings in the file with LF or just run each command in the script manually.
+
+
+## Credits
+[deadlocked-cheats](https://github.com/Dnawrkshp/deadlocked-cheats) contributors
