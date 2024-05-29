@@ -23,7 +23,7 @@ We're looking for people to test this!! Please report any issues you find!
 ## Build Instructions
 To build, install [docker](https://docker.com/)
 ```
-docker pull ps2dev/ps2dev
+docker pull ps2dev/ps2dev:v1.2.0
 docker run -it --rm -v "$PWD\:/src" ps2dev/ps2dev:v1.2.0
 cd src
 cd gcpt
