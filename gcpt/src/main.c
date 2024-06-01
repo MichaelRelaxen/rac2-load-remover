@@ -9,6 +9,7 @@
 #define defaultOffset (0xEF000)
 
 // Variables for keeping track of old values for load remover/autosplitter etc.
+#define old_scene (*((short*)defaultOffset - 4))
 #define old_planet_timer_value (*((int*)defaultOffset + 1))
 #define old_player_state (*((int*)defaultOffset + 2))
 #define old_load_screen (*((int*)defaultOffset + 3))
@@ -16,20 +17,22 @@
 #define load_screen_count (*((int*)defaultOffset + 5))
 #define final_time (*((int*)defaultOffset + 6))
 #define old_down_buttons (*((int*)defaultOffset + 7))
+#define old_planet (*((int*)defaultOffset + 8))
 // Manual overrride for drawing timer, non-zero means hide
-#define drawing_disable (*((int*)defaultOffset + 8))
+#define drawing_disable (*((int*)defaultOffset + 9))
 // Value of frame timer stored from the frame when resetting
-#define timer_offset (*((int*)defaultOffset + 9))
+#define timer_offset (*((int*)defaultOffset + 10))
 // Frames saved via load normalisation
-#define load_norm (*((int*)defaultOffset + 10))
+#define load_norm (*((int*)defaultOffset + 11))
 // Number of long loads counted, each one is 217 frames
-#define long_loads (*((int*)defaultOffset + 11))
+#define long_loads (*((int*)defaultOffset + 12))
 // Number of "black screen"(?) frames when our code doesn't run
-#define black_frames (*((int*)defaultOffset + 12))
+#define black_frames (*((int*)defaultOffset + 13))
+// Variable for how many splits have been saved.
+#define saved_splits (*((int*)defaultOffset + 14))
 
-// Make sure these two are last
-#define misc_string ((char*)defaultOffset + 0x40)
-#define formatted_time_string ((char*)defaultOffset + 0x60)
+
+#define formatted_time_string ((char*)defaultOffset - 0x60)
 
 // Every single planet has it's own guiDrawTextEx function, so we need to swap them out every time you load into a new level.
 // It's important to not change the address for guiDrawText while the function is being called or else it'll crash.
@@ -69,12 +72,12 @@ void resetTimer() {
     // Reset timer on Aranos 1 spawn!
     // 98 is like some kinda walking animation idk
     if (current_planet == 0 && old_player_state == 98) {
-        // 33 frames after player state is set to 98. this sucks actually but idc LOL
-        timer_offset = global_timer - 33;
+        timer_offset = global_timer - 33; // 33 frames after player state is set to 98. this sucks actually but idc LOL
         final_time = 0;
         load_norm = 0;
         long_loads = 0;
         black_frames = 0;
+        saved_splits = 0;
     }
 }
 
@@ -114,12 +117,12 @@ void processFrozenScreens() {
     if (global_timer - old_global_timer > 10) {
         // One frame of difference usually, more means it froze for a bit
         black_frames += global_timer - old_global_timer - 1;
-        // sprintf(misc_string, "bs%d", black_frames);
     }
 }
 
 int getGameState() {
-    if(current_planet == OOZLA) return oozla_game_state;
+    // value of original game state offset seems to always change to these bytes, so just check if those bytes exist to put oozla game state instead.
+    if(main_game_state == 0x10000004) return oozla_game_state;
     else return main_game_state;
 }
 
@@ -128,7 +131,7 @@ void drawText(int posX, int posY, char* message) {
     // Not displaying when it's frozen prevents drawing during loading screens and pauses.
     // Also check if planet_loading is 0, or else it'll crash on Aranos end, Jamming entry, Insomniac Museum teleporter etc.
     if ((planet_loading == 0 && planet_loading_oozla == 0) && getGameState() != 3) {
-        GuiDrawTextExFunc guiDrawTextEx = (GuiDrawTextExFunc)guiDrawTextExAddresses[current_planet];
+        GuiDrawTextExFunc guiDrawTextEx = (GuiDrawTextExFunc)guiDrawTextExAddresses[current_planet]; // -0x878 for guiDrawTextEx, -0x2d20 for some function that gets font?
         guiDrawTextEx(posX, posY, 0x80f0f0f0, message, -1);
     }
 }
@@ -151,6 +154,29 @@ void formatTime(int frames) {
     sprintf(formatted_time_string, "%u:%02u:%02u.%03u\xf!%d", hours, minutes, seconds, milliseconds, black_frames);
 }
 
+int curr_adjusted_time, total_offset, timer_height;
+
+struct SavedSplits {
+    int saved_split;
+    char saved_planet;
+    int split_time;
+};
+
+    struct SavedSplits *splits = (struct SavedSplits *)0xE0000;
+
+void addSplit() {
+    // Formatting in the game TBD.
+    // Save our splits at memory address 0xE0000.
+
+    // Split on FeaR_SR's timing method.
+    // Probably should clear memory on Aranos need to find memset address.
+    if(current_planet_alt_ofs != old_planet) {
+        saved_splits += 1;
+        splits[saved_splits - 1].saved_split = saved_splits;
+        splits[saved_splits - 1].saved_planet = old_planet;
+        splits[saved_splits - 1].split_time = curr_adjusted_time;
+    }
+}
 
 int main(void)
 {   
@@ -160,52 +186,53 @@ int main(void)
     }
 
     // Each normalised long load is 217 frames
-    int total_offset = timer_offset + load_norm + (217 * long_loads) + black_frames;
-    int curr_adjusted_time = global_timer - total_offset;
+    total_offset = timer_offset + load_norm + (217 * long_loads) + black_frames;
+    curr_adjusted_time = global_timer - total_offset;
 
     // Get our final time when Protopet is killed.
     // Cutscene ID 6 is the protopet death cutscene
-    if (current_planet == 20 && final_time == 0 && yeedil_scene == 6) {
+    if (current_planet == 20 && final_time == 0 && current_scene == 6) {
         // 9 frames need to be subtracted for the time to be correct with fadeout.
-        final_time = curr_adjusted_time - 9;
+        final_time = curr_adjusted_time - 16;
     }
-    
     // Handle freezing on protopet by drawing final_time if it exists 
     if (final_time != 0) {
         formatTime(final_time);
-        drawText(0x8, 0x150, formatted_time_string); 
-        drawText(0x8, 0x135, misc_string); 
+        timer_height = 0x150;
+
     } else if (drawing_disable == 0) {
         formatTime(curr_adjusted_time);
 
-        int height = 0x185;
+        timer_height = 0x185;
         // Draw higher on ship missions to avoid blocking timer
         if (current_planet == WUPASH || current_planet == FELTZIN 
         || current_planet == HRUGIS || current_planet == GORN) {
-            height = 0x150;
+            timer_height = 0x150;
         }
-        drawText(0x8, height, formatted_time_string);;
+    }
+    if (drawing_disable == 0 || final_time != 0)
+    {
+        drawText(0x8, timer_height, formatted_time_string);
     }
     
     resetTimer();
     processFrozenScreens();
     processLongLoads();
+    // addSplit();
 
     // Reset loading screen count if we just landed on a planet
     // Determined by planet-specific timer resetting
     if (strafe_timer < 5) {
         load_screen_count = 0;
     }
-
-    // char funny[128];
-    // sprintf(funny, "%d %d %d", player_state, loading_count, load_screen_type); 
-    // drawText(0x8, 0x160, funny); 
-
     // Get previous state of variables for comparison.
     old_planet_timer_value = strafe_timer;
     old_global_timer = global_timer;
     old_player_state = player_state;
     old_load_screen = load_screen_type;
     old_down_buttons = down_buttons;
+    old_scene = current_scene;
+    old_planet = current_planet_alt_ofs;
+
 	return 0;
 }
