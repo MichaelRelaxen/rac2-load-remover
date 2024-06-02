@@ -30,6 +30,8 @@
 #define black_frames (*((int*)defaultOffset + 13))
 // Variable for how many splits have been saved.
 #define saved_splits (*((int*)defaultOffset + 14))
+// Currently selected split, decides which split is shown on screen.
+#define selected_split (*((int*)defaultOffset + 15))
 
 
 #define formatted_time_string ((char*)defaultOffset - 0x60)
@@ -68,6 +70,14 @@ const uint64_t guiDrawTextExAddresses[] = {
     0x2E9AD8    // JAMMING_ARRAY
 };
 
+struct SavedSplits {
+    int saved_split;
+    char saved_planet;
+    int split_time;
+};
+
+struct SavedSplits *splits = (struct SavedSplits *)0xE0000;
+
 void resetTimer() {
     // Reset timer on Aranos 1 spawn!
     // 98 is like some kinda walking animation idk
@@ -77,11 +87,15 @@ void resetTimer() {
         load_norm = 0;
         long_loads = 0;
         black_frames = 0;
-        saved_splits = 0;
+
+        if(saved_splits != 0) // reset splits
+            memset(splits, 0, sizeof(struct SavedSplits) * (saved_splits + 2));
+
+        saved_splits = 1;
     }
 }
 
-void processLongLoads() {
+void processLoadSceens() {
     // 0 Right-to-left (3.6, 218 frames)
     // 1 Curved (3.7, 226 frames)
     // 2 Left-to-right (3.6, 217 frames)
@@ -121,7 +135,7 @@ void processFrozenScreens() {
 }
 
 int getGameState() {
-    // value of original game state offset seems to always change to these bytes, so just check if those bytes exist to put oozla game state instead.
+    // value of original game state offset seems to always change to these bytes whenever oozla is loaded.
     if(main_game_state == 0x10000004) return oozla_game_state;
     else return main_game_state;
 }
@@ -136,52 +150,62 @@ void drawText(int posX, int posY, char* message) {
     }
 }
 
-void formatTime(int frames) {
-    // Format our time string, can't use / or % operators for some reason so we need to use udivdi3 and umoddi3 functions from the game.
-    unsigned long milliseconds, seconds, minutes, hours;
+typedef struct {
+    unsigned long milliseconds;
+    unsigned long seconds;
+    unsigned long minutes;
+    unsigned long hours;
+} Time;
 
-    milliseconds = udivdi3(frames * 1000, 60);
+Time convertTime(int frames) {
+    Time time;
+    unsigned long milliseconds_total = udivdi3(frames * 1000, 60);
 
-    seconds = udivdi3(milliseconds, 1000);
-    milliseconds = umoddi3(milliseconds, 1000);
+    time.hours = udivdi3(milliseconds_total, 1000 * 60 * 60);
+    milliseconds_total = umoddi3(milliseconds_total, 1000 * 60 * 60);
 
-    minutes = udivdi3(seconds, 60);
-    seconds = umoddi3(seconds, 60);
+    time.minutes = udivdi3(milliseconds_total, 1000 * 60);
+    milliseconds_total = umoddi3(milliseconds_total, 1000 * 60);
 
-    hours = udivdi3(minutes, 60);
-    minutes = umoddi3(minutes, 60);
+    time.seconds = udivdi3(milliseconds_total, 1000);
+    milliseconds_total = umoddi3(milliseconds_total, 1000);
 
-    sprintf(formatted_time_string, "%u:%02u:%02u.%03u\xf!%d", hours, minutes, seconds, milliseconds, black_frames);
+    time.milliseconds = milliseconds_total;
+
+    return time;
+}
+
+// Main timer display.
+void formatTimerDisplay(int frames) {
+    Time c = convertTime(frames);
+    sprintf(formatted_time_string, "%u:%02u:%02u.%03u\xf!%d", c.hours, c.minutes, c.seconds, c.milliseconds, black_frames);
 }
 
 int curr_adjusted_time, total_offset, timer_height;
 
-struct SavedSplits {
-    int saved_split;
-    char saved_planet;
-    int split_time;
-};
-
-    struct SavedSplits *splits = (struct SavedSplits *)0xE0000;
-
 void addSplit() {
-    // Formatting in the game TBD.
     // Save our splits at memory address 0xE0000.
-
     // Split on FeaR_SR's timing method.
-    // Probably should clear memory on Aranos need to find memset address.
     if(current_planet_alt_ofs != old_planet) {
+        splits[saved_splits].saved_split = saved_splits;
+        splits[saved_splits].saved_planet = old_planet;
+        splits[saved_splits].split_time = curr_adjusted_time;
+
         saved_splits += 1;
-        splits[saved_splits - 1].saved_split = saved_splits;
-        splits[saved_splits - 1].saved_planet = old_planet;
-        splits[saved_splits - 1].split_time = curr_adjusted_time;
     }
+}
+
+int checkInput(unsigned short input) {
+    if (old_down_buttons != down_buttons && down_buttons == input) 
+        return 1;
+
+    return 0;
 }
 
 int main(void)
 {   
     // Process button combos, currently just hides/shows timer
-    if (old_down_buttons != down_buttons && down_buttons == 15) {
+    if (checkInput(15) == 1) {
         drawing_disable = !drawing_disable;
     }
 
@@ -197,12 +221,13 @@ int main(void)
     }
     // Handle freezing on protopet by drawing final_time if it exists 
     if (final_time != 0) {
-        formatTime(final_time);
+        formatTimerDisplay(final_time);
         timer_height = 0x150;
 
     } else if (drawing_disable == 0) {
-        formatTime(curr_adjusted_time);
+        formatTimerDisplay(curr_adjusted_time);
 
+        // Default timer height is at 0x185.
         timer_height = 0x185;
         // Draw higher on ship missions to avoid blocking timer
         if (current_planet == WUPASH || current_planet == FELTZIN 
@@ -210,15 +235,40 @@ int main(void)
             timer_height = 0x150;
         }
     }
+
+    Time convertedSplitTime = convertTime(splits[selected_split].split_time);
+
     if (drawing_disable == 0 || final_time != 0)
     {
         drawText(0x8, timer_height, formatted_time_string);
+
+        if(selected_split != 0) {
+            char formatted_split[50]; 
+            sprintf(formatted_split, "%d. %s: %u:%02u.%03u", 
+                splits[selected_split].saved_split, 
+                planetNames[splits[selected_split].saved_planet], 
+                convertedSplitTime.minutes, 
+                convertedSplitTime.seconds, 
+                convertedSplitTime.milliseconds);
+            drawText(0x8, timer_height -  0x15, formatted_split);
+        }
     }
+
+    if (checkInput(0x202) == 1) // l3+r2 
+        selected_split += 1;
+    if (checkInput(0x201) == 1) // l3+l2 
+        selected_split -= 1;
+
+    // Make sure that player can't access splits past how many splits there are or below 0.
+    if(splits[selected_split].split_time == 0 && selected_split > 0)
+        selected_split -= 1;
+    if(selected_split < 0)
+        selected_split = 0;
     
     resetTimer();
     processFrozenScreens();
-    processLongLoads();
-    // addSplit();
+    processLoadSceens();
+    addSplit();
 
     // Reset loading screen count if we just landed on a planet
     // Determined by planet-specific timer resetting
