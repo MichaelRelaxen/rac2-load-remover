@@ -18,6 +18,11 @@
 // Creates a text popup.
 #define createPopup ((void(*)(char*, uint64_t))0x30dd70)
 
+#define memset ((void (*)(void*, char, int))0x115484)
+
+#define memcpy ((void (*)(void*, void*, int))0x1153d4)
+
+
 
 // -----
 // VARIABLES
@@ -149,6 +154,36 @@ enum Planets {
     SHIP_SHACK,
     WUPASH,
     JAMMING_ARRAY
+};
+
+const char *planetNames[] = {
+    "Aranos",
+    "Oozla",
+    "Maktar",
+    "Endako",
+    "Barlow",
+    "Feltzin",
+    "Notak",
+    "Siberius",
+    "Tabora",
+    "Dobbo",
+    "Hrugis",
+    "Joba",
+    "Todano",
+    "Boldan",
+    "Aranos II",
+    "Gorn",
+    "Snivelak",
+    "Smolg",
+    "Damosel",
+    "Grelbin",
+    "Yeedil",
+    "Museum",
+    "Dobbo Orbit",
+    "Damosel Orbit",
+    "Ship Shack",
+    "Wupash",
+    "Jamming Array"
 };
 
 // -----
