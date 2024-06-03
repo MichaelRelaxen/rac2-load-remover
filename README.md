@@ -9,11 +9,11 @@ The mod comes as a .pnach file which modifies the game's code.
 
 To run it on emulator (PCSX2) you can put the `.pnach` file into the cheats directory, then enable cheats.
 
-To run the the game on console with Disc:
+To run the mod on console with Disc:
 1. Download [ps2rdmod](https://www.psx-place.com/threads/ps2rdmod-by-pelvicthrustman.19168/).
 2. Download the [.pnach file](https://github.com/MichaelRelaxen/gcpt/releases/latest/download/38996035.pnach) and put it inside the PNACH folder that comes with ps2rdmod.
 3. Put the files on a flash drive and plug it into your PS2.
-4. Run the `ps2rd.elf` using FreeMcBoot and LaunchELF.
+4. Run the `ps2rd.elf` using uLaunchELF via FreeMcBoot or Fortuna memory card.
 
 ## Known Issues
 - Some graphical bugs with the timer are present during autosaves, pauses, cutscenes etc.
