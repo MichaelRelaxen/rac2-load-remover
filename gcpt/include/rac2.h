@@ -18,6 +18,11 @@
 // Creates a text popup.
 #define createPopup ((void(*)(char*, uint64_t))0x30dd70)
 
+#define memset ((void (*)(void*, char, int))0x115484)
+
+#define memcpy ((void (*)(void*, void*, int))0x1153d4)
+
+
 
 // -----
 // VARIABLES
@@ -59,6 +64,9 @@
 // current planet
 #define current_planet (*((char*)0x1A79F0))
 
+// current planet alt, seems to only change once you're in loading screen, and not immediately on load. should fix the crash with swapping gamestates.
+#define current_planet_alt_ofs (*((char*)0x1507E0))
+
 // The buttons that are currently pressed.
 #define down_buttons (*((unsigned short*)0x138320))
 
@@ -95,7 +103,7 @@
 #define oozla_game_state (*((unsigned int*)0x1A8F40))
 
 // Current cutscene ID that's playing. May only be used on Yeedil.
-#define yeedil_scene (*((char*)0x1A6414))
+#define current_scene (*((short*)0x1A6414))
 
 // -----
 // buttons
@@ -146,6 +154,36 @@ enum Planets {
     SHIP_SHACK,
     WUPASH,
     JAMMING_ARRAY
+};
+
+const char *planetNames[] = {
+    "Aranos",
+    "Oozla",
+    "Maktar",
+    "Endako",
+    "Barlow",
+    "Feltzin",
+    "Notak",
+    "Siberius",
+    "Tabora",
+    "Dobbo",
+    "Hrugis",
+    "Joba",
+    "Todano",
+    "Boldan",
+    "Aranos II",
+    "Gorn",
+    "Snivelak",
+    "Smolg",
+    "Damosel",
+    "Grelbin",
+    "Yeedil",
+    "Museum",
+    "Dobbo Orbit",
+    "Damosel Orbit",
+    "Ship Shack",
+    "Wupash",
+    "Jamming Array"
 };
 
 // -----
