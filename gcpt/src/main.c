@@ -36,6 +36,12 @@
 
 #define formatted_time_string ((char*)defaultOffset - 0x60)
 
+#define KB_SHOWHIDE   (PAD_R1 | PAD_R2 | PAD_L1 | PAD_L2)
+#define KB_SPLITLEFT  (PAD_R2 | PAD_L2 | PAD_LEFT)
+#define KB_SPLITRIGHT (PAD_R2 | PAD_L2 | PAD_RIGHT)
+#define KB_SPLITCURR  (PAD_R2 | PAD_L2 | PAD_UP)
+#define KB_SPLITMODE  (PAD_R2 | PAD_L2 | PAD_DOWN)
+
 // Every single planet has it's own guiDrawTextEx function, so we need to swap them out every time you load into a new level.
 // It's important to not change the address for guiDrawText while the function is being called or else it'll crash.
 typedef void (*GuiDrawTextExFunc)(int, int, u64, char*, int);
@@ -87,6 +93,8 @@ void resetTimer() {
         load_norm = 0;
         long_loads = 0;
         black_frames = 0;
+        // Final loading screen.
+        old_load_screen = 4;
 
         if(saved_splits != 0) // reset splits
             memset(splits, 0, sizeof(struct SavedSplits) * (saved_splits + 2));
@@ -96,6 +104,11 @@ void resetTimer() {
 }
 
 void processLoadSceens() {
+    // If in a cutscene and have had loading screens, reset them
+    if (load_screen_count != 0 && getGameState() == 2) {
+        load_screen_count = 0;
+    }
+
     // 0 Right-to-left (3.6, 218 frames)
     // 1 Curved (3.7, 226 frames)
     // 2 Left-to-right (3.6, 217 frames)
@@ -116,6 +129,7 @@ void processLoadSceens() {
         if (load_screen_type == LOAD_TTB) { 
             load_norm += 21;
         }
+
 
         // Additionally, remove fully any loading screens after the second one.
         // Don't include final load screen in this timing
@@ -178,7 +192,7 @@ Time convertTime(int frames) {
 // Main timer display.
 void formatTimerDisplay(int frames) {
     Time c = convertTime(frames);
-    sprintf(formatted_time_string, "%u:%02u:%02u.%03u\xf - %d", c.hours, c.minutes, c.seconds, c.milliseconds, black_frames);
+    sprintf(formatted_time_string, "%u:%02u:%02u.%03u\xf (%df)", c.hours, c.minutes, c.seconds, c.milliseconds, black_frames);
 }
 
 int curr_adjusted_time, total_offset, timer_height;
@@ -207,7 +221,7 @@ int splitViewMode;
 int main(void)
 {   
     // Process button combos, currently just hides/shows timer
-    if (checkInput(15) == 1) {
+    if (checkInput(KB_SHOWHIDE) == 1) {
         drawing_disable = !drawing_disable;
     }
 
@@ -264,14 +278,14 @@ int main(void)
         }
     }
 
-    if (checkInput(0x202) == 1) // l3+r2 
+    if (checkInput(KB_SPLITRIGHT) == 1)
         selected_split += 1;
-    if (checkInput(0x201) == 1) // l3+l2 
+    if (checkInput(KB_SPLITLEFT) == 1) 
         selected_split -= 1;
-    if(checkInput(0x20A) == 1) // l3+ r1+r2
+    if (checkInput(KB_SPLITCURR) == 1) 
         selected_split = saved_splits;
 
-    if(checkInput(0x205) == 1) // l3 + l1+l2
+    if(checkInput(KB_SPLITMODE) == 1) 
         splitViewMode = !splitViewMode;
         
 
