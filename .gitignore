@@ -1,3 +1,5 @@
 gcpt/bin/*
 gcpt/bin2codedef/*
 gcpt/obj/*
+*__pycache__
+gcpt/out.c

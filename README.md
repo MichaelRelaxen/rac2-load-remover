@@ -1,8 +1,16 @@
 # Black Label Timer Mod
-[This mod](<https://github.com/MichaelRelaxen/gcpt>) times RaC2 black label runs in a hardware-independent way. It removes black (loading) screens, and automatically does long load removal and normalisation. 
+[This mod](<https://github.com/MichaelRelaxen/gcpt>) times RaC2 black label runs in a hardware-independent way. It removes black (loading) screens, automatically does long load removal and normalisation, and provides per-planet segment splits. 
 
 To use it, load the mod (details below) and the mod should automatically reset your timer when you load a fresh save file on aranos 1. After killing the protopet on yeedil, the timer should freeze; time warp to before killing the protopet to see the final time of your run with extra loading times removed. 
-Additionally, you can use the combo `L1+L2+R1+R2` to toggle the display of the timer. It's on by default but you can turn it off if it's distracting. 
+
+# Usage 
+
+The mod should be configured for runs by default, but you can use the following button combos:
+* `L2+R2+L1+R1`: toggle display
+* `L2+R2+up`: show current segment 
+* `L2+R2+right`: show next segment 
+* `L2+R2+left`: show previous segment
+* `L2+R2+down`: toggle segment mode
 
 ## Installation
 The mod comes as a .pnach file which modifies the game's code. 
