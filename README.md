@@ -13,15 +13,9 @@ The mod should be configured for runs by default, but you can use the following 
 * `L2+R2+down`: toggle segment mode
 
 ## Installation
-The mod comes as a .pnach file which modifies the game's code. 
+To run the mod on emulator (PCSX2) you can put the `.pnach` file into the cheats directory, then enable cheats.
 
-To run it on emulator (PCSX2) you can put the `.pnach` file into the cheats directory, then enable cheats.
-
-To run the mod on console with Disc:
-1. Download [ps2rdmod](https://www.psx-place.com/threads/ps2rdmod-by-pelvicthrustman.19168/).
-2. Download the [.pnach file](https://github.com/MichaelRelaxen/gcpt/releases/latest/download/38996035.pnach) and put it inside the PNACH folder that comes with ps2rdmod.
-3. Put the files on a flash drive and plug it into your PS2.
-4. Run the `ps2rd.elf` using uLaunchELF via FreeMcBoot or Fortuna memory card.
+To run the mod on console with a disc, use the supplied .ELF file which bundles the mod and automatically applies it.
 
 ## Known Issues
 - Some graphical bugs with the timer are present during autosaves, pauses, cutscenes etc.
@@ -45,6 +39,7 @@ make clean && make
 
 NOTE: The docker-init script is known to fail due to inconsistent line endings when your git is configured to convert line endings (windows). If this is the case you can either replace all line endings in the file with LF or just run each command in the script manually.
 
+To generate the embedded cheat used by the [gctimer ELF](https://github.com/robooooo-bs/ps2cheat), run the included `converter.py` script. 
 
 ## Credits
 [deadlocked-cheats](https://github.com/Dnawrkshp/deadlocked-cheats) contributors
