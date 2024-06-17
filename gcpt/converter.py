@@ -1,3 +1,5 @@
+import os
+
 mastercode = "0011CD48 0C0472FA"
 code_lines = [mastercode] + [line.upper().strip() for line in open("bin/38996035.raw") if line != "\n"]
 
@@ -22,7 +24,10 @@ for i in range(0, len(result), 8):
 
 num_lines = len(output.split("\n"))
 output = f"u32 RacTimer[{num_lines - 1}] =" + " {\n" + output + "};"   
+
 # print(output)
 
-with open("bin/TimerMod.c", "w") as file:
+target_dir = os.path.join(os.pardir, 'ps2cheat', 'Exports', 'RacTimer.c')
+
+with open(target_dir, "w") as file:
     file.write(output)

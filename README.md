@@ -39,7 +39,7 @@ make clean && make
 
 NOTE: The docker-init script is known to fail due to inconsistent line endings when your git is configured to convert line endings (windows). If this is the case you can either replace all line endings in the file with LF or just run each command in the script manually.
 
-To generate the embedded cheat used by the [gctimer ELF](https://github.com/robooooo-bs/ps2cheat), run the included `converter.py` script. 
+To build the `gctimer.elf`, just run the `docker-make.bat` file inside the ps2cheat folder.
 
 ## Credits
 - [deadlocked-cheats](https://github.com/Dnawrkshp/deadlocked-cheats) by Dnawrkshp and Metroynome
