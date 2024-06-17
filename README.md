@@ -23,7 +23,7 @@ To run the mod on console with a disc, use the supplied .ELF file which bundles 
 We're looking for people to test this!! Please report any issues you find!
 
 ## Build Instructions
-To build, install [docker](https://docker.com/)
+To build the load remover, install [docker](https://docker.com/)
 ```
 docker pull ps2dev/ps2dev:v1.2.0
 docker run -it --rm -v "$PWD\:/src" ps2dev/ps2dev:v1.2.0
@@ -42,5 +42,5 @@ NOTE: The docker-init script is known to fail due to inconsistent line endings w
 To generate the embedded cheat used by the [gctimer ELF](https://github.com/robooooo-bs/ps2cheat), run the included `converter.py` script. 
 
 ## Credits
-[deadlocked-cheats](https://github.com/Dnawrkshp/deadlocked-cheats) by Dnawrkshp and Metroynome
-[NetCheat](https://github.com/Dnawrkshp/NetCheat) by Dnawrkshp
+- [deadlocked-cheats](https://github.com/Dnawrkshp/deadlocked-cheats) by Dnawrkshp and Metroynome
+- [NetCheat](https://github.com/Dnawrkshp/NetCheat) by Dnawrkshp
