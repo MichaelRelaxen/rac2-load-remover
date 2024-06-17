@@ -6,8 +6,6 @@ EE_INC_DIR = include/
 EE_ELF = $(EE_BIN_DIR)test.elf
 EE_BIN = $(EE_BIN_DIR)38996035
 EE_OBJS = main.o
-#EE_LIBS = -luyantsc
-#EE_LIBS = -luyapal
 
 ADDRESS = 000F0000
 # This is where the code will be written into memory.
@@ -45,6 +43,7 @@ code:
 	bin2code $(EE_BIN) $(ADDRESS) $(EE_BIN).pnach pnach-writeonce
 	cat template/footer.raw >> $(EE_BIN).raw
 	cat template/footer.pnach >> $(EE_BIN).pnach
+	python3 converter.py
 
 clean:
 	rm -rf linkfile

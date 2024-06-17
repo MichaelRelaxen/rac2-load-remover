@@ -22,4 +22,7 @@ for i in range(0, len(result), 8):
 
 num_lines = len(output.split("\n"))
 output = f"u32 RacTimer[{num_lines - 1}] =" + " {\n" + output + "};"   
-print(output)
+# print(output)
+
+with open("bin/TimerMod.c", "w") as file:
+    file.write(output)

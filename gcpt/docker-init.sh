@@ -3,6 +3,7 @@
 
 # add dependencies
 apk add make git build-base
+apk add --no-cache python3 py3-pip
 
 ## Download the source code.
 REPO_URL="https://github.com/Dnawrkshp/bin2code"
