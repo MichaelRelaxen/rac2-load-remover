@@ -42,4 +42,5 @@ NOTE: The docker-init script is known to fail due to inconsistent line endings w
 To generate the embedded cheat used by the [gctimer ELF](https://github.com/robooooo-bs/ps2cheat), run the included `converter.py` script. 
 
 ## Credits
-[deadlocked-cheats](https://github.com/Dnawrkshp/deadlocked-cheats) contributors
+[deadlocked-cheats](https://github.com/Dnawrkshp/deadlocked-cheats) by Dnawrkshp and Metroynome
+[NetCheat](https://github.com/Dnawrkshp/NetCheat) by Dnawrkshp
