@@ -5,3 +5,4 @@ gcpt/obj/*
 gcpt/out.c
 gcpt/crt0.obj
 gcpt/linkfile
+ps2cheat/gctimer.elf
