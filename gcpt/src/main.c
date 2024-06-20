@@ -197,10 +197,10 @@ void formatTimerDisplay(int frames) {
 
 int curr_adjusted_time, total_offset, timer_height;
 
-void addSplit() {
+void addSplit(int override) {
     // Save our splits at memory address 0xE0000.
     // Split on FeaR_SR's timing method.
-    if(current_planet_alt_ofs != old_planet) {
+    if(override || current_planet_alt_ofs != old_planet) {
         splits[saved_splits].saved_split = saved_splits;
         splits[saved_splits].saved_planet = old_planet;
         splits[saved_splits].split_time = curr_adjusted_time;
@@ -234,6 +234,9 @@ int main(void)
     if (current_planet == 20 && final_time == 0 && current_scene == 6) {
         // 9 frames need to be subtracted for the time to be correct with fadeout.
         final_time = curr_adjusted_time - 16;
+        // Also apply this to yeedil subsplit!
+        addSplit(1);
+        splits[saved_splits - 1].split_time -= 16;
     }
     // Handle freezing on protopet by drawing final_time if it exists 
     if (final_time != 0) {
@@ -255,7 +258,7 @@ int main(void)
     Time convertedSplitTime;
 
     if(splitViewMode == 1)
-        convertedSplitTime =  convertTime(splits[selected_split].split_time - splits[selected_split - 1].split_time);
+        convertedSplitTime = convertTime(splits[selected_split].split_time - splits[selected_split - 1].split_time);
 
     if(splitViewMode == 0)
         convertedSplitTime = convertTime(splits[selected_split].split_time);
@@ -298,7 +301,7 @@ int main(void)
     resetTimer();
     processFrozenScreens();
     processLoadSceens();
-    addSplit(); 
+    addSplit(0); 
 
     // Reset loading screen count if we just landed on a planet
     // Determined by planet-specific timer resetting
