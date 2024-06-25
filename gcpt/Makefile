@@ -1,5 +1,5 @@
 EE_OBJS_DIR = obj/
-EE_BIN_DIR = bin/
+EE_BIN_DIR = build/
 EE_SRC_DIR = src/
 EE_INC_DIR = include/
 

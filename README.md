@@ -23,6 +23,11 @@ To run the mod on console with a disc, use the supplied .ELF file which bundles 
 We're looking for people to test this!! Please report any issues you find!
 
 ## Build Instructions
+
+Run make.bat in the root directory. You'll need docker installed.
+
+### Manual Instructions
+
 To build the load remover, install [docker](https://docker.com/)
 ```
 docker pull ps2dev/ps2dev:v1.2.0

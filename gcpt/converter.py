@@ -1,7 +1,7 @@
 import os
 
 mastercode = "0011CD48 0C0472FA"
-code_lines = [mastercode] + [line.upper().strip() for line in open("bin/38996035.raw") if line != "\n"]
+code_lines = [mastercode] + [line.upper().strip() for line in open("build/38996035.raw") if line != "\n"]
 
 def swap(code):
     """AABBCCDD -> DDCCBBAA"""
